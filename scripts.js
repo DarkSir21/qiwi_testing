@@ -12,18 +12,19 @@
 
   Container.prototype.add = function(el) {
 
-    var shift = 60 + 10 * this.length;
+    el.startShift += 10 * this.length;
 
     el.close.onclick = function() { this.close(el) }.bind(this);
 
-    el.element.style.top = shift + 'px';
-    el.element.style.left = shift + 'px';
+    el.element.style.top = el.startShift + 'px';
+    el.element.style.left = el.startShift + 'px';
     this.zIndexUp(el.element);
     
     el.element.onmousedown = function() { this.zIndexUp(el.element) }.bind(this);
 
     this.wrapper.appendChild(el.element);
     this.push(el)
+    el.setTitle('Окно ' + this.length);
   };
 
   Container.prototype.close = function(el) {
@@ -47,8 +48,13 @@
 
   function WindowElement() {
     this.element = d.querySelector('.clone-item .window').cloneNode(true);
+    this.startShift = 60;
     this.head = this.element.querySelector('.head');
     this.close = this.head.querySelector('.close');
+    this.minElement = this.head.querySelector('.minimize');
+    this.maxElement = this.head.querySelector('.maximize');
+    this.minWindow = false;
+    this.maxWindow = false;
     this.posX = 0;
     this.posY = 0;
     this.newPosX = 0;
@@ -56,12 +62,16 @@
     this.dragStart = this.dragStart.bind(this);
     this.drag = this.drag.bind(this);
     this.dragEnd = this.dragEnd.bind(this);
+    this.minimize = this.minimize.bind(this);
+    this.normalize = this.normalize.bind(this);
+    this.maximize = this.maximize.bind(this);
 
     this.head.addEventListener('mousedown', this.dragStart, false);
+    this.minElement.addEventListener('click', this.minimize, false);
+    this.maxElement.addEventListener('click', this.maximize, false);
   }
 
   WindowElement.prototype.dragStart = function(e){
-
     cursorPosX = e.clientX;
     cursorPosY = e.clientY;
     this.head.classList.add('-grabbing');
@@ -83,6 +93,69 @@
 
     window.removeEventListener('mousemove', this.drag);
     this.head.classList.remove('-grabbing');
+  }
+
+  WindowElement.prototype.minimize = function(e){
+    e.stopPropagation();
+    
+    var styles = {
+      top: 0,
+      left: 0,
+      bottom: 0,
+      transform: '',
+      order: this.element.style.zIndex
+    };
+
+    if( this.maxWindow ) this.normalize(e);
+    
+    this.element.classList.add('minimize');
+    Object.assign(this.element.style, styles);
+    this.minWindow = true;
+
+    this.head.removeEventListener('mousedown', this.dragStart);
+    this.element.addEventListener('click', this.normalize, false);
+
+  }
+
+  WindowElement.prototype.normalize = function(e){
+    e.stopPropagation();
+
+    var styles = {
+      top: this.startShift + 'px',
+      left: this.startShift + 'px',
+      bottom: '',
+      transform: 'translate3d('+ this.posX +'px,'+ this.posY +'px,0px)'
+    };
+
+    this.element.classList.remove('minimize', 'maximize');
+    Object.assign(this.element.style, styles);
+    this.minWindow = false;
+
+    this.head.addEventListener('mousedown', this.dragStart);
+    this.element.removeEventListener('click', this.normalize, false);
+    this.maxElement.removeEventListener('click', this.normalize, false);
+    this.maxElement.addEventListener('click', this.maximize, false);
+  }
+
+  WindowElement.prototype.maximize = function(e){
+    e.stopPropagation();
+
+    var styles = {
+      top: 0,
+      left: 0,
+      transform: ''
+    };
+    this.element.classList.add('maximize');
+    Object.assign(this.element.style, styles);
+    this.maxWindow = true;
+
+    this.head.removeEventListener('mousedown', this.dragStart);
+    this.maxElement.removeEventListener('click', this.maximize, false);
+    this.maxElement.addEventListener('click', this.normalize, false);
+  }
+
+  WindowElement.prototype.setTitle = function(html) {
+    this.head.querySelector('.title').innerHTML = html;
   }
 
   var mainContainer = new Container('.container');

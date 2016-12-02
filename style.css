@@ -21,6 +21,8 @@ body, html {
   height: 100%;
   overflow: hidden;
   position: relative;
+  display: flex;
+  align-items: flex-end;
 }
 
 
@@ -35,16 +37,36 @@ body, html {
   height: 640px;
 }
 
+.window.minimize {
+  position: relative;
+  width: 120px;
+  height: 3rem;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.3);
+  /*transition: all .2s;*/
+}
+
+.window.maximize {
+  width: 100vw;
+  height: calc( 100vh - 3rem );
+  box-shadow: 0 0 0 1px rgba(0,0,0,.3);
+}
+
 .window > .head {
   display: flex;
   flex-grow: 0;
   justify-content: flex-end;
   width: 100%;
-  height: 2rem;
+  height: 3rem;
   box-shadow: inset 0 -3px 0 -2px rgba(0,0,0,.3);
   background-color: #fff;
   cursor: -webkit-grab;
   cursor: -moz-grab;
+}
+
+.window > .head > .title {
+  flex: 1;
+  align-self: center;
+  padding: 0 1rem;
 }
 
 .window > .head.-grabbing {
@@ -61,6 +83,23 @@ body, html {
   overflow-y: auto;
 }
 
+
+.window.minimize > .head {
+  flex: 1;
+  cursor: pointer;
+}
+
+.window.minimize > .head > .close,
+.window.minimize > .head > .minimize,
+.window.minimize > .head > .maximize {
+  display: none;
+}
+
+.window.minimize > .body {
+  flex: 0;
+  overflow: hidden;
+}
+
 .window > .body > .item {
   text-align: center;
   font-size: 2rem;
@@ -74,29 +113,47 @@ body, html {
   max-width: 60%;
 }
 
-.window > .head > .close {
+.window > .head > .close,
+.window > .head > .minimize,
+.window > .head > .maximize {
   cursor: pointer;
   width: 2rem;
   height: 100%;
-  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2031.112%2031.112%27%3E%3Cpath%20fill%3D%27%23000%27%20d%3D%27M31.112%201.414L29.698%200%2015.556%2014.142%201.414%200%200%201.414l14.142%2014.142L0%2029.698l1.414%201.414L15.556%2016.97l14.142%2014.142%201.414-1.414L16.97%2015.556z%27%2F%3E%3C%2Fsvg%3E");
   background-repeat: no-repeat;
   background-position: center;
   background-size: 50%;
   transition: all .2s;
 }
 
+.window > .head > .close {
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20512%20512%22%3E%3Cpath%20d%3D%22M512%2022.252L489.747.001l-233.812%20233.81L22.253.139%200%2022.39l233.682%20233.674L0%20489.748l22.253%2022.251%20233.682-233.68%20233.689%20233.68%2022.253-22.251-233.689-233.684z%22%2F%3E%3C%2Fsvg%3E");
+}
+
 .window > .head > .close:hover {
-  background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2031.112%2031.112%27%3E%3Cpath%20fill%3D%27%23fff%27%20d%3D%27M31.112%201.414L29.698%200%2015.556%2014.142%201.414%200%200%201.414l14.142%2014.142L0%2029.698l1.414%201.414L15.556%2016.97l14.142%2014.142%201.414-1.414L16.97%2015.556z%27%2F%3E%3C%2Fsvg%3E");
+  background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20512%20512%22%3E%3Cpath%20fill%3D%22%23fff%22%20d%3D%22M512%2022.252L489.747.001l-233.812%20233.81L22.253.139%200%2022.39l233.682%20233.674L0%20489.748l22.253%2022.251%20233.682-233.68%20233.689%20233.68%2022.253-22.251-233.689-233.684z%22%2F%3E%3C%2Fsvg%3E");
   background-color: red;
 }
 
+.window > .head > .maximize {
+  background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20512%20512%22%3E%3Cpath%20d%3D%22M386.612%20114.939H10.449C4.679%20114.939%200%20119.617%200%20125.388v376.163C0%20507.321%204.679%20512%2010.449%20512h376.163c5.77%200%2010.449-4.679%2010.449-10.449V125.388c0-5.771-4.678-10.449-10.449-10.449zm-10.449%20376.163H20.898V135.837h355.265v355.265z%22%2F%3E%3Cpath%20d%3D%22M502.633%200H126.469c-5.77%200-11.531%203.978-11.531%209.747V82.89c0%205.772%204.679%2010.449%2010.449%2010.449s10.449-4.677%2010.449-10.449V20.898h355.265v355.265h-51.163c-5.77%200-10.449%204.679-10.449%2010.449s4.679%2010.449%2010.449%2010.449h62.694c5.77%200%209.367-5.379%209.367-11.151V9.747C512%203.978%20508.403%200%20502.633%200z%22%2F%3E%3C%2Fsvg%3E");
+}
+
+.window > .head > .minimize {
+  background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20512%20512%22%3E%3Cpath%20d%3D%22M0%20244.364h512v23.273H0z%22%2F%3E%3C%2Fsvg%3E");
+  background-position: 50% 70%;
+}
+
+.window > .head > .maximize:hover,
+.window > .head > .minimize:hover {
+  background-color: rgba(0,0,0,.03);
+}
 .clone-item {
   display: none;
 }
 
 .add-window {
   position: absolute;
-  bottom: 0;
+  bottom: 5rem;
   left: 0;
   border: none;
   background: none;
